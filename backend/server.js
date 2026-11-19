@@ -114,8 +114,51 @@ app.get("/api/emergencias/:id", (req, res) => {
   res.json(emergencia);
 });
 
+
+const estadosPermitidos = [
+  "Pendiente",
+  "En atención",
+  "Resuelta"
+];
+
+// Actualizar el estado de una emergencia
+app.patch("/api/emergencias/:id/estado", (req, res) => {
+  const { id } = req.params;
+  const { estado } = req.body || {};
+
+  // Validar el nuevo estado
+  if (!estadosPermitidos.includes(estado)) {
+    return res.status(400).json({
+      error: "Estado no válido",
+      estadosPermitidos
+    });
+  }
+
+  // Buscar la emergencia registrada
+  const emergencia = emergencias.find(
+    (item) => item.id === id
+  );
+
+  if (!emergencia) {
+    return res.status(404).json({
+      error: "Emergencia no encontrada"
+    });
+  }
+
+  // Actualizar su estado
+  emergencia.estado = estado;
+  emergencia.fechaActualizacion = new Date().toISOString();
+
+  return res.json({
+    mensaje: "Estado actualizado correctamente",
+    emergencia
+  });
+});
+
+
 app.listen(PORT, () => {
   console.log(
     `Servidor ejecutándose en http://localhost:${PORT}`
   );
 });
+

@@ -68,6 +68,30 @@
       </button>
       <div id="listaEmergencias"></div>
     </section>
+
+
+<section class="tarjeta" id="panelOperador">
+  <h2>Panel del operador</h2>
+
+  <p>
+    Gestiona los incidentes registrados y actualiza
+    su estado de atención.
+  </p>
+
+  <label for="filtroEstado">Filtrar por estado</label>
+
+  <select id="filtroEstado">
+    <option value="Todos">Todos los estados</option>
+    <option value="Pendiente">Pendiente</option>
+    <option value="En atención">En atención</option>
+    <option value="Resuelta">Resuelta</option>
+  </select>
+
+  <div id="listaOperador"></div>
+
+  <p id="mensajeOperador" role="status" aria-live="polite"></p>
+</section>
+
   </main>
 
   <footer>

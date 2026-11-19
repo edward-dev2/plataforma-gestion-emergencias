@@ -209,3 +209,151 @@ document.getElementById("actualizar")
 
 // Ejecutar después de inicializar el mapa
 cargarEmergencias();
+
+
+// ========================================
+// 6. PANEL DEL OPERADOR
+// ========================================
+
+const listaOperador = document.getElementById("listaOperador");
+const filtroEstado = document.getElementById("filtroEstado");
+const mensajeOperador = document.getElementById("mensajeOperador");
+
+async function cargarPanelOperador() {
+  try {
+    const respuesta = await fetch(API);
+
+    if (!respuesta.ok) {
+      throw new Error("No se pudieron consultar los incidentes");
+    }
+
+    const datos = await respuesta.json();
+    const filtro = filtroEstado.value;
+
+    listaOperador.replaceChildren();
+
+    const emergenciasFiltradas = datos.emergencias.filter(
+      (emergencia) =>
+        filtro === "Todos" || emergencia.estado === filtro
+    );
+
+    if (emergenciasFiltradas.length === 0) {
+      listaOperador.textContent =
+        "No hay emergencias para este estado.";
+      return;
+    }
+
+    emergenciasFiltradas.forEach((emergencia) => {
+      const tarjeta = document.createElement("article");
+      tarjeta.className = "incidente";
+
+      const titulo = document.createElement("h3");
+      titulo.textContent = emergencia.tipo;
+
+      const descripcion = document.createElement("p");
+      descripcion.textContent = emergencia.descripcion;
+
+      const estado = document.createElement("p");
+      estado.textContent = `Estado actual: ${emergencia.estado}`;
+
+      const selector = document.createElement("select");
+
+      ["Pendiente", "En atención", "Resuelta"].forEach(
+        (opcionEstado) => {
+          const opcion = document.createElement("option");
+          opcion.value = opcionEstado;
+          opcion.textContent = opcionEstado;
+          selector.append(opcion);
+        }
+      );
+
+      selector.value = emergencia.estado;
+
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.textContent = "Actualizar estado";
+
+      boton.addEventListener("click", async () => {
+        boton.disabled = true;
+        mensajeOperador.textContent = "Actualizando estado...";
+
+        try {
+          const cuerpo = JSON.stringify({
+            estado: selector.value
+          });
+
+          const respuesta = await fetch(
+            `${API}/${emergencia.id}/estado`,
+            {
+              method: "PATCH",
+              headers: {
+                "Content-Type": "application/json"
+              },
+              body: cuerpo
+            }
+          );
+
+          const resultado = await respuesta.json();
+
+          if (!respuesta.ok) {
+            throw new Error(
+              resultado.error || "No se pudo actualizar"
+            );
+          }
+
+          mensajeOperador.textContent =
+            "Estado actualizado correctamente.";
+
+          await cargarEmergencias();
+          await cargarPanelOperador();
+
+        } catch (error) {
+          mensajeOperador.textContent =
+            `Error: ${error.message}`;
+        } finally {
+          boton.disabled = false;
+        }
+      });
+
+      tarjeta.append(
+        titulo,
+        descripcion,
+        estado,
+        selector,
+        boton
+      );
+
+      listaOperador.append(tarjeta);
+    });
+
+  } catch (error) {
+    console.error("Error del panel:", error);
+    listaOperador.textContent =
+      "No se pudo cargar el panel del operador.";
+  }
+}
+
+// Actualizar panel al cambiar el filtro
+filtroEstado.addEventListener(
+  "change",
+  cargarPanelOperador
+);
+
+// Actualizar panel al presionar el botón de listado
+document.getElementById("actualizar").addEventListener(
+  "click",
+  cargarPanelOperador
+);
+
+// Actualizar panel después de registrar una emergencia
+formulario.addEventListener(
+  "submit",
+  () => {
+    // Esperar a que el registro termine y recargar
+    // mediante la siguiente actualización manual.
+  }
+);
+
+// Cargar incidentes inicialmente
+cargarPanelOperador();
+
