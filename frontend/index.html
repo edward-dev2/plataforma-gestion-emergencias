@@ -6,7 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alerta Ciudadana | Reportar emergencia</title>
   <link rel="stylesheet" href="css/styles.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="js/app.js" defer></script>
+
+  <link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+>
+
 </head>
 <body>
   <header>
@@ -42,6 +49,11 @@
         <label for="longitud">Longitud</label>
         <input id="longitud" type="number" step="any"
           min="-180" max="180" required>
+
+        <label>Ubicación en el mapa</label>
+        <p>Haz clic en el mapa para seleccionar las coordenadas.</p>
+
+        <div id="mapa" aria-label="Mapa para seleccionar ubicación"></div>
 
         <button type="submit">Enviar reporte</button>
       </form>

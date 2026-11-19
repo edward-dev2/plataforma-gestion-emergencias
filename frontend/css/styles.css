@@ -91,3 +91,16 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+#mapa {
+  height: 320px;
+  width: 100%;
+  margin-top: 12px;
+  border-radius: 10px;
+  border: 1px solid #cbd5e1;
+  z-index: 0;
+}
+
+.leaflet-container {
+  font-family: Arial, sans-serif;
+}
