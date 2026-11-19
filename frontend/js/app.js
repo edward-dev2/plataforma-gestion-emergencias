@@ -150,6 +150,12 @@ async function cargarEmergencias() {
 formulario.addEventListener("submit", async (evento) => {
   evento.preventDefault();
 
+  if (!sesion) {
+  mensaje.textContent =
+    "Debes iniciar sesión para registrar una emergencia.";
+  return;
+}
+
   const datos = {
     tipo: document.getElementById("tipo").value,
     descripcion: document.getElementById("descripcion").value,
@@ -163,7 +169,8 @@ formulario.addEventListener("submit", async (evento) => {
     const respuesta = await fetch(API, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json"
+  "Content-Type": "application/json",
+  "Authorization": `Bearer ${sesion.token}`
       },
       body: JSON.stringify(datos)
     });
@@ -189,6 +196,10 @@ formulario.addEventListener("submit", async (evento) => {
 
     // Actualizar listado y marcadores
     await cargarEmergencias();
+
+    if (sesion.usuario.rol === "operador") {
+  await cargarPanelOperador();
+}
 
   } catch (error) {
     console.error("Error al registrar emergencia:", error);
@@ -219,8 +230,15 @@ const listaOperador = document.getElementById("listaOperador");
 const filtroEstado = document.getElementById("filtroEstado");
 const mensajeOperador = document.getElementById("mensajeOperador");
 
+
 async function cargarPanelOperador() {
+  if (!sesion || sesion.usuario.rol !== "operador") {
+    listaOperador.replaceChildren();
+    return;
+  }
+
   try {
+
     const respuesta = await fetch(API);
 
     if (!respuesta.ok) {
@@ -282,16 +300,19 @@ async function cargarPanelOperador() {
             estado: selector.value
           });
 
-          const respuesta = await fetch(
-            `${API}/${emergencia.id}/estado`,
-            {
-              method: "PATCH",
-              headers: {
-                "Content-Type": "application/json"
-              },
-              body: cuerpo
-            }
-          );
+          
+const respuesta = await fetch(
+  `${API}/${emergencia.id}/estado`,
+  {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${sesion.token}`
+    },
+    body: cuerpo
+  }
+);
+
 
           const resultado = await respuesta.json();
 
@@ -354,6 +375,89 @@ formulario.addEventListener(
   }
 );
 
-// Cargar incidentes inicialmente
-cargarPanelOperador();
+
+
+
+
+// ========================================
+// 7. AUTENTICACIÓN DEL FRONTEND
+// ========================================
+
+let sesion = null;
+
+const formLogin = document.getElementById("formLogin");
+const mensajeLogin = document.getElementById("mensajeLogin");
+const seccionLogin = document.getElementById("seccionLogin");
+const seccionUsuario = document.getElementById("seccionUsuario");
+const datosUsuario = document.getElementById("datosUsuario");
+
+function actualizarInterfazSesion() {
+  const autenticado = Boolean(sesion);
+  const operador = sesion?.usuario?.rol === "operador";
+
+  seccionLogin.hidden = autenticado;
+  seccionUsuario.hidden = !autenticado;
+
+  // Solo mostrar el panel a operadores
+  document.getElementById("panelOperador").hidden = !operador;
+
+  if (autenticado) {
+    datosUsuario.textContent =
+      `${sesion.usuario.nombre} - Rol: ${sesion.usuario.rol}`;
+  } else {
+    datosUsuario.textContent = "";
+  }
+}
+
+formLogin.addEventListener("submit", async (evento) => {
+  evento.preventDefault();
+
+  const correo = document.getElementById("correoLogin").value;
+  const password = document.getElementById("passwordLogin").value;
+
+  mensajeLogin.textContent = "Iniciando sesión...";
+
+  try {
+    const respuesta = await fetch(
+      "http://localhost:3000/api/auth/login",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ correo, password })
+      }
+    );
+
+    const resultado = await respuesta.json();
+
+    if (!respuesta.ok) {
+      throw new Error(resultado.error || "Error de acceso");
+    }
+
+    sesion = resultado;
+    formLogin.reset();
+    mensajeLogin.textContent = "";
+
+    actualizarInterfazSesion();
+
+    if (sesion.usuario.rol === "operador") {
+      await cargarPanelOperador();
+    }
+
+  } catch (error) {
+    mensajeLogin.textContent = `Error: ${error.message}`;
+  }
+});
+
+document.getElementById("cerrarSesion")
+  .addEventListener("click", () => {
+    sesion = null;
+    actualizarInterfazSesion();
+    mensajeLogin.textContent = "Sesión cerrada.";
+  });
+
+// Ocultar inicialmente el panel de operador
+actualizarInterfazSesion();
+
 

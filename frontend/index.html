@@ -22,6 +22,46 @@
   </header>
 
   <main>
+
+
+<section class="tarjeta" id="seccionLogin">
+  <h2>Iniciar sesión</h2>
+  <p>Accede con tu cuenta de ciudadano u operador.</p>
+
+  <form id="formLogin">
+    <label for="correoLogin">Correo electrónico</label>
+    <input
+      type="email"
+      id="correoLogin"
+      placeholder="correo@ejemplo.com"
+      autocomplete="username"
+      required
+    >
+
+    <label for="passwordLogin">Contraseña</label>
+    <input
+      type="password"
+      id="passwordLogin"
+      placeholder="Ingresa tu contraseña"
+      autocomplete="current-password"
+      required
+    >
+
+    <button type="submit">Iniciar sesión</button>
+  </form>
+
+  <p id="mensajeLogin" role="status" aria-live="polite"></p>
+</section>
+
+<section class="tarjeta" id="seccionUsuario" hidden>
+  <h2>Mi sesión</h2>
+  <p id="datosUsuario"></p>
+  <button type="button" id="cerrarSesion">
+    Cerrar sesión
+  </button>
+</section>
+
+
     <section class="tarjeta">
       <h2>Reportar una emergencia</h2>
       <p>Completa la información del incidente.</p>
@@ -93,6 +133,7 @@
 </section>
 
   </main>
+
 
   <footer>
     <p>Prototipo académico UNAD — Datos de prueba.</p>
