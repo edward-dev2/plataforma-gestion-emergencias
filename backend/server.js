@@ -58,13 +58,18 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json({ limit: "100kb" }));
 
+
 const categorias = [
   "Incendio",
   "Accidente",
   "Inundación",
+  "Sismo",
+  "Deslizamiento",
+  "Vendaval",
   "Emergencia médica",
   "Otra"
 ];
+
 
 const estadosPermitidos = [
   "Pendiente",
