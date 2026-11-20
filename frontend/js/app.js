@@ -9,7 +9,9 @@ const lista = document.getElementById("listaEmergencias");
 // 1. INICIALIZAR EL MAPA
 // ========================================
 
-const mapa = L.map("mapa").setView([4.6097, -74.0817], 12);
+
+const mapa = L.map("mapa").setView([2.4448, -76.6147], 13);
+
 
 L.tileLayer(
   "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
